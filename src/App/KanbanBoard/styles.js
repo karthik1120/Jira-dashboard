@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { Draggable } from 'react-beautiful-dnd'
 
 export const KanbanBody = styled.div``
 

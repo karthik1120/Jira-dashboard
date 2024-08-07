@@ -18,7 +18,7 @@ const KanbanBoard = () => {
   const handleSelectAvatar = e => {
     if (
       !e.target.style.boxShadow ||
-      e.target.style.boxShadow == 'rgb(255, 255, 255) 0px 0px 0px 2px'
+      e.target.style.boxShadow === 'rgb(255, 255, 255) 0px 0px 0px 2px'
     )
       e.target.style.cssText =
         'box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px, rgb(0, 82, 204) 0px 0px 0px 4px'
