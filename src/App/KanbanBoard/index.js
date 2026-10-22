@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   KanbanBody,
   ClickableNav,
@@ -14,17 +14,31 @@ import {
 import { fontIconCodes } from '../utils'
 import KanbanDndComponent from './KanbanDndComponent'
 
+const users = [
+  {
+    id: 'yoda',
+    title: 'baby yoda',
+    img: 'https://i.ibb.co/6n0hLML/baby-yoda.jpg',
+  },
+  {
+    id: 'rick',
+    title: 'pickle rick',
+    img: 'https://i.ibb.co/7JM1P2r/picke-rick.jpg',
+  },
+  {
+    id: 'starstruck',
+    title: 'starstruck',
+    img: 'https://github.githubassets.com/assets/starstruck-default-b6610abad518.png',
+  },
+]
+
 const KanbanBoard = () => {
-  const handleSelectAvatar = e => {
-    if (
-      !e.target.style.boxShadow ||
-      e.target.style.boxShadow === 'rgb(255, 255, 255) 0px 0px 0px 2px'
+  const [selectedUsers, setSelectedUsers] = useState([])
+
+  const handleSelectAvatar = id =>
+    setSelectedUsers(prev =>
+      prev.includes(id) ? prev.filter(u => u !== id) : [...prev, id]
     )
-      e.target.style.cssText =
-        'box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px, rgb(0, 82, 204) 0px 0px 0px 4px'
-    else
-      e.target.style.cssText = 'box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px'
-  }
 
   return (
     <KanbanBody>
@@ -48,24 +62,15 @@ const KanbanBoard = () => {
           <input />
         </InputFilter>
         <AvatarFilter>
-          <Avatar
-            img={'https://i.ibb.co/6n0hLML/baby-yoda.jpg'}
-            onClick={handleSelectAvatar}
-            title={'baby yoda'}
-          />
-          <Avatar
-            img={'https://i.ibb.co/7JM1P2r/picke-rick.jpg'}
-            onClick={handleSelectAvatar}
-            title={'baby yoda'}
-          />
-
-          <Avatar
-            img={
-              'https://github.githubassets.com/assets/starstruck-default-b6610abad518.png'
-            }
-            onClick={handleSelectAvatar}
-            title={'baby yoda'}
-          />
+          {users.map(user => (
+            <Avatar
+              key={user.id}
+              img={user.img}
+              title={user.title}
+              $selected={selectedUsers.includes(user.id)}
+              onClick={() => handleSelectAvatar(user.id)}
+            />
+          ))}
         </AvatarFilter>
       </KanbanFilters>
 

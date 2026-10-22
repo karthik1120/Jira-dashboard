@@ -125,7 +125,10 @@ export const Avatar = styled.div`
   text-align: center;
   /* margin-left: -5px; */
   border-radius: 50%;
-  box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px;
+  box-shadow: ${props =>
+    props.$selected
+      ? 'rgb(255, 255, 255) 0px 0px 0px 2px, rgb(0, 82, 204) 0px 0px 0px 4px'
+      : 'rgb(255, 255, 255) 0px 0px 0px 2px'};
   cursor: pointer;
   ${props => props.img && `background-image: url(${props.img})`};
   object-fit: cover;

@@ -3,7 +3,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd'
 import RowDraggable from './RowDnd'
 import { BodyHeader } from './styles'
 
-const ColumnDndBoard = ({ column, index, setState }) => {
+const ColumnDndBoard = ({ column, index }) => {
   return (
     <Draggable draggableId={String(column?.id)} index={index}>
       {(dragProvided, snap) => (
@@ -26,8 +26,6 @@ const ColumnDndBoard = ({ column, index, setState }) => {
                     key={rowData?.id}
                     rowData={rowData}
                     index={index}
-                    setState={setState}
-                    columnId={column?.id}
                   />
                 ))}
                 {droppableProvided.placeholder}
