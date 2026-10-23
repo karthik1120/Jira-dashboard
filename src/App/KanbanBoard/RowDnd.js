@@ -2,8 +2,13 @@ import React from 'react'
 import { Draggable } from 'react-beautiful-dnd'
 import { DraggableCard, CardFooter, StyledIcon, Avatar } from './styles'
 import { fontIconCodes } from '../utils'
+import { users, getCardPriority, getCardAssigneeId } from './db'
 
-const RowDnd = ({ rowData, index }) => {
+const RowDnd = ({ rowData, index, onOpen }) => {
+  const priority = getCardPriority(rowData)
+  // Issues assigned "Automatic" have a null assignee and render unassigned
+  const assignee = users.find(u => u.id === getCardAssigneeId(rowData))
+
   return (
     <Draggable
       key={rowData?.id}
@@ -16,6 +21,10 @@ const RowDnd = ({ rowData, index }) => {
             {...draggableProvided.draggableProps}
             {...draggableProvided.dragHandleProps}
             ref={draggableProvided.innerRef}
+            onClick={() => onOpen(rowData)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') onOpen(rowData)
+            }}
           >
             <p className="card">{rowData?.title}</p>
 
@@ -27,15 +36,15 @@ const RowDnd = ({ rowData, index }) => {
                   size={'18px'}
                 />
                 <StyledIcon
-                  code={fontIconCodes['arrow-up']}
-                  color="#cd1317"
+                  code={fontIconCodes[priority.icon]}
+                  color={priority.color}
                   size={'19px'}
                 />
               </div>
 
               <Avatar
-                img={'https://i.ibb.co/6n0hLML/baby-yoda.jpg'}
-                title={'baby yoda'}
+                img={assignee?.img}
+                title={assignee?.title ?? 'Unassigned'}
                 size={'24px'}
                 stopHover
               />

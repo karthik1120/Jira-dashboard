@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import Column from './ColumnDndBoard'
-import { initialData } from './db.js'
+import { matchesSearch } from '../utils'
 
 const reorder = (list, from, to) => {
   const next = [...list]
@@ -10,9 +10,12 @@ const reorder = (list, from, to) => {
   return next
 }
 
-const KanbanDndComponent = () => {
-  const [state, setState] = useState(initialData)
-
+const KanbanDndComponent = ({
+  columns: state,
+  setColumns: setState,
+  searchQuery = '',
+  onOpenIssue,
+}) => {
   const handleDragEnd = ({ destination, source, type }) => {
     if (!destination) return
 
@@ -28,31 +31,41 @@ const KanbanDndComponent = () => {
       return
     }
 
-    const movedCard = state.find(col => col.id === source.droppableId).cards[
-      source.index
-    ]
+    // Indexes from react-beautiful-dnd refer to the filtered cards, so map
+    // them back to positions in the full card list.
+    const sourceColumn = state.find(col => col.id === source.droppableId)
+    const movedCard = sourceColumn.cards.filter(card =>
+      matchesSearch(card, searchQuery)
+    )[source.index]
+
+    const destinationColumn = state.find(
+      col => col.id === destination.droppableId
+    )
+    const destinationCards = destinationColumn.cards.filter(
+      card => card.id !== movedCard.id
+    )
+    const visibleCards = destinationCards.filter(card =>
+      matchesSearch(card, searchQuery)
+    )
+    const insertAt =
+      destination.index < visibleCards.length
+        ? destinationCards.indexOf(visibleCards[destination.index])
+        : visibleCards.length
+          ? destinationCards.indexOf(visibleCards[visibleCards.length - 1]) + 1
+          : destinationCards.length
 
     setState(
       state.map(col => {
-        const isSource = col.id === source.droppableId
-        const isDestination = col.id === destination.droppableId
-
-        if (isSource && isDestination) {
-          return {
-            ...col,
-            cards: reorder(col.cards, source.index, destination.index),
-          }
-        }
-        if (isSource) {
-          return {
-            ...col,
-            cards: col.cards.filter((_, i) => i !== source.index),
-          }
-        }
-        if (isDestination) {
-          const cards = [...col.cards]
-          cards.splice(destination.index, 0, movedCard)
+        if (col.id === destination.droppableId) {
+          const cards = [...destinationCards]
+          cards.splice(insertAt, 0, movedCard)
           return { ...col, cards }
+        }
+        if (col.id === source.droppableId) {
+          return {
+            ...col,
+            cards: col.cards.filter(card => card.id !== movedCard.id),
+          }
         }
         return col
       })
@@ -65,7 +78,13 @@ const KanbanDndComponent = () => {
         {(provided, snapProvided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
             {state?.map((columnInfo, index) => (
-              <Column key={columnInfo.id} column={columnInfo} index={index} />
+              <Column
+                key={columnInfo.id}
+                column={columnInfo}
+                index={index}
+                searchQuery={searchQuery}
+                onOpenIssue={onOpenIssue}
+              />
             ))}
             {provided.placeholder}
           </div>

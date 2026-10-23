@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import {
   KanbanBody,
   ClickableNav,
@@ -13,27 +13,40 @@ import {
 } from './styles'
 import { fontIconCodes } from '../utils'
 import KanbanDndComponent from './KanbanDndComponent'
-
-const users = [
-  {
-    id: 'yoda',
-    title: 'baby yoda',
-    img: 'https://i.ibb.co/6n0hLML/baby-yoda.jpg',
-  },
-  {
-    id: 'rick',
-    title: 'pickle rick',
-    img: 'https://i.ibb.co/7JM1P2r/picke-rick.jpg',
-  },
-  {
-    id: 'starstruck',
-    title: 'starstruck',
-    img: 'https://github.githubassets.com/assets/starstruck-default-b6610abad518.png',
-  },
-]
+import IssueModal from '../IssueModal'
+import { initialData, users } from './db'
 
 const KanbanBoard = () => {
   const [selectedUsers, setSelectedUsers] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [columns, setColumns] = useState(initialData)
+  // `issue` stays set while the modal fades out so its content doesn't jump
+  const [modal, setModal] = useState({ isOpen: false, issue: null })
+
+  const openIssue = useCallback(issue => setModal({ isOpen: true, issue }), [])
+  const closeModal = useCallback(
+    () => setModal(prev => ({ ...prev, isOpen: false })),
+    []
+  )
+
+  const issueStatus =
+    modal.issue &&
+    columns.find(col => col.cards.some(card => card.id === modal.issue.id))
+      ?.title
+
+  // Edits replace the card in place; new issues land at the bottom of the
+  // leftmost column
+  const handleSaveIssue = card =>
+    setColumns(prev =>
+      modal.issue
+        ? prev.map(col => ({
+            ...col,
+            cards: col.cards.map(c => (c.id === card.id ? card : c)),
+          }))
+        : prev.map((col, i) =>
+            i === 0 ? { ...col, cards: [...col.cards, card] } : col
+          )
+    )
 
   const handleSelectAvatar = id =>
     setSelectedUsers(prev =>
@@ -51,7 +64,7 @@ const KanbanBoard = () => {
       </ClickableNav>
       <BoardHeader>
         <div id={'boardHeader'}> Kanban board</div>
-        <button>
+        <button onClick={() => openIssue(null)}>
           <StyledIcon code={fontIconCodes['plus']} />
           Create Issue
         </button>
@@ -59,7 +72,11 @@ const KanbanBoard = () => {
       <KanbanFilters>
         <InputFilter>
           <StyledSearchIcon code={fontIconCodes['search']} />
-          <input />
+          <input
+            placeholder="Search issues"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
         </InputFilter>
         <AvatarFilter>
           {users.map(user => (
@@ -75,8 +92,21 @@ const KanbanBoard = () => {
       </KanbanFilters>
 
       <KanbanboardBody>
-        <KanbanDndComponent />
+        <KanbanDndComponent
+          columns={columns}
+          setColumns={setColumns}
+          searchQuery={searchQuery}
+          onOpenIssue={openIssue}
+        />
       </KanbanboardBody>
+
+      <IssueModal
+        isOpen={modal.isOpen}
+        issue={modal.issue}
+        status={issueStatus}
+        onClose={closeModal}
+        onSave={handleSaveIssue}
+      />
     </KanbanBody>
   )
 }

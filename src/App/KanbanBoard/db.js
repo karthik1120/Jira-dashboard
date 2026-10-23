@@ -66,3 +66,52 @@ export const initialData = [
     title: 'ready for deployment',
   },
 ]
+
+export const users = [
+  {
+    id: 'yoda',
+    title: 'baby yoda',
+    img: 'https://i.ibb.co/6n0hLML/baby-yoda.jpg',
+  },
+  {
+    id: 'rick',
+    title: 'pickle rick',
+    img: 'https://i.ibb.co/7JM1P2r/picke-rick.jpg',
+  },
+  {
+    id: 'starstruck',
+    title: 'starstruck',
+    img: 'https://github.githubassets.com/assets/starstruck-default-b6610abad518.png',
+  },
+]
+
+export const currentUserId = 'yoda'
+
+export const priorities = [
+  {
+    value: 'High',
+    description: 'very urgent task',
+    icon: 'arrow-up',
+    color: '#cd1317',
+  },
+  {
+    value: 'Medium',
+    description: 'normal activity',
+    icon: 'arrow-up',
+    color: '#e97f33',
+  },
+  {
+    value: 'Low',
+    description: 'Long activity',
+    icon: 'arrow-down',
+    color: '#2d8738',
+  },
+]
+
+// Seed cards predate the priority and assignee fields, so fall back to the
+// values the board has always shown for them.
+export const getCardPriority = card =>
+  priorities.find(p => p.value === card?.priority) ?? priorities[0]
+
+export const getCardAssigneeId = card =>
+  card?.assignee === undefined ? users[0].id : card.assignee

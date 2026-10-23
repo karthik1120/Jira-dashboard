@@ -2,8 +2,9 @@ import React from 'react'
 import { Droppable, Draggable } from 'react-beautiful-dnd'
 import RowDraggable from './RowDnd'
 import { BodyHeader } from './styles'
+import { matchesSearch } from '../utils'
 
-const ColumnDndBoard = ({ column, index }) => {
+const ColumnDndBoard = ({ column, index, searchQuery, onOpenIssue }) => {
   return (
     <Draggable draggableId={String(column?.id)} index={index}>
       {(dragProvided, snap) => (
@@ -21,13 +22,16 @@ const ColumnDndBoard = ({ column, index }) => {
                   padding: '0px 5px',
                 }}
               >
-                {column?.cards?.map((rowData, index) => (
-                  <RowDraggable
-                    key={rowData?.id}
-                    rowData={rowData}
-                    index={index}
-                  />
-                ))}
+                {column?.cards
+                  ?.filter(card => matchesSearch(card, searchQuery))
+                  .map((rowData, index) => (
+                    <RowDraggable
+                      key={rowData?.id}
+                      rowData={rowData}
+                      index={index}
+                      onOpen={onOpenIssue}
+                    />
+                  ))}
                 {droppableProvided.placeholder}
               </div>
             )}

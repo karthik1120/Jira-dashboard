@@ -32,3 +32,6 @@ export const fontIconCodes = {
   [`arrow-left`]: '\\e91e',
   [`arrow-right`]: '\\e91f',
 }
+
+export const matchesSearch = (card, query) =>
+  card.title.toLowerCase().includes(query.trim().toLowerCase())
